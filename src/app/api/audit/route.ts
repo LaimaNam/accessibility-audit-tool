@@ -18,6 +18,7 @@ async function runAccessibilityAudit(url: string) {
 
   // Vykdome axe-core ir grąžiname accessibility problemas
   const issues = await page.evaluate(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return await (window as any).axe.run();
   });
 

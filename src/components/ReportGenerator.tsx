@@ -3,6 +3,7 @@ import { jsPDF } from "jspdf";
 import Papa from "papaparse";
 
 interface ReportGeneratorProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any[]>;
 }
 

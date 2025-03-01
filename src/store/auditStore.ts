@@ -2,8 +2,10 @@ import { create } from "zustand";
 
 interface AuditState {
   currentUrl: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   auditResults: Record<string, any[]>;
   setUrl: (url: string) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setAuditResults: (url: string, results: any[]) => void;
 }
 

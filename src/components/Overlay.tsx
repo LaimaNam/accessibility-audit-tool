@@ -1,6 +1,7 @@
 import React from "react";
 
 interface OverlayProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   issues: any[];
 }
 
