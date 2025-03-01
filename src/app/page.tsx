@@ -1,101 +1,91 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, useEffect } from "react";
+import { fetchSitemapUrls } from "@/utils/fetchSitemapUrls";
+import { useAuditStore } from "@/store/auditStore";
+import { Overlay } from "@/components/Overlay";
+import { ReportGenerator } from "@/components/ReportGenerator";
+
+const HomePage = () => {
+  const [sitemapUrl, setSitemapUrl] = useState("");
+  const [scanning, setScanning] = useState(false);
+  const [error, setError] = useState("");
+  const { setUrl, setAuditResults, auditResults, currentUrl } = useAuditStore();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null;
+
+  // Add logging to the handleScan function
+  const handleScan = async () => {
+    setScanning(true);
+    setError(""); // Clear previous errors
+
+    try {
+      console.log("Starting sitemap scan for URL:", sitemapUrl);
+      const urls = await fetchSitemapUrls(sitemapUrl);
+      console.log("URLs to scan: ", urls);
+
+      const urlsToScan = [urls[0]]; // Testing only the first URL
+
+      for (const url of urlsToScan) {
+        setUrl(url);
+        console.log("Scanning URL:", url);
+
+        try {
+          const response = await fetch(
+            `/api/audit?url=${encodeURIComponent(url)}`
+          );
+          console.log("Audit Response Status:", response.status);
+
+          if (!response.ok) {
+            throw new Error(`Failed to audit ${url}: ${response.statusText}`);
+          }
+
+          const { issues } = await response.json();
+          console.log("Accessibility Issues: ", issues);
+          setAuditResults(url, issues.violations);
+        } catch (e) {
+          console.warn("Accessibility audit failed for ", url, e);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch sitemap", e);
+      setError(e?.message || "Unknown error");
+    } finally {
+      setScanning(false);
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Accessibility Audit Tool</h1>
+      <input
+        type="text"
+        value={sitemapUrl}
+        onChange={(e) => setSitemapUrl(e.target.value)}
+        placeholder="Enter Sitemap URL"
+        className="p-2 border rounded w-full mb-4"
+      />
+      <button
+        onClick={handleScan}
+        disabled={scanning}
+        className="p-2 bg-blue-500 text-white rounded"
+      >
+        {scanning ? "Scanning..." : "Start Scan"}
+      </button>
+      {error && <p>{error}</p>}
+      <div className="mt-8">
+        {currentUrl && scanning && <p>Scanning: {currentUrl}</p>}
+        <Overlay issues={auditResults[currentUrl] || []} />
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <ReportGenerator data={auditResults} />
     </div>
   );
-}
+};
+
+export default HomePage;
