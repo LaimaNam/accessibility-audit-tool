@@ -54,6 +54,7 @@ const HomePage = () => {
       }
     } catch (e) {
       console.error("Failed to fetch sitemap", e);
+      // @ts-expect-error todo
       setError(e?.message || "Unknown error");
     } finally {
       setScanning(false);

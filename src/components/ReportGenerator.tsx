@@ -1,5 +1,6 @@
 import React from "react";
 import { jsPDF } from "jspdf";
+// @ts-expect-error todo
 import Papa from "papaparse";
 
 interface ReportGeneratorProps {
