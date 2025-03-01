@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
   try {
     console.log("Starting accessibility audit for URL:", url);
     const issues = await runAccessibilityAudit(url);
-    console.log("Accessibility Issues:", issues);
+    // console.log("Accessibility Issues:", issues);
     return NextResponse.json({ issues });
   } catch (error) {
     console.error("Accessibility audit failed:", error);
