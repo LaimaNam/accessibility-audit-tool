@@ -3,9 +3,16 @@ import { jsPDF } from "jspdf";
 // @ts-expect-error todo
 import Papa from "papaparse";
 
-interface ReportGeneratorProps {
+interface IssueResults {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: Record<string, any[]>;
+  violations: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  incomplete: any[];
+  url: string;
+}
+
+interface ReportGeneratorProps {
+  data: Record<string, IssueResults>;
 }
 
 export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ data }) => {
@@ -22,7 +29,14 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ data }) => {
   };
 
   const downloadCSV = () => {
-    const csv = Papa.unparse(data);
+    const formattedData = Object.values(data).map(
+      ({ url, violations, incomplete }) => ({
+        url,
+        violations: violations.map((v) => v.description).join(", "),
+        incomplete: incomplete.map((i) => i.description).join(", "),
+      })
+    );
+    const csv = Papa.unparse(formattedData);
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -32,14 +46,14 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ data }) => {
     URL.revokeObjectURL(url);
   };
 
-  const downloadPDF = () => {
-    const doc = new jsPDF();
-    doc.text(JSON.stringify(data, null, 2), 10, 10);
-    doc.save("report.pdf");
-  };
+  // const downloadPDF = () => {
+  //   const doc = new jsPDF();
+  //   doc.text(JSON.stringify(data, null, 2), 10, 10);
+  //   doc.save("report.pdf");
+  // };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 mt-5">
       <button
         onClick={downloadJSON}
         className="p-2 bg-blue-500 text-white rounded"
@@ -52,12 +66,12 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ data }) => {
       >
         Download CSV
       </button>
-      <button
+      {/* <button
         onClick={downloadPDF}
         className="p-2 bg-red-500 text-white rounded"
       >
         Download PDF
-      </button>
+      </button> */}
     </div>
   );
 };

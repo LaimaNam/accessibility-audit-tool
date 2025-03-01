@@ -26,7 +26,6 @@ async function runAccessibilityAudit(url: string) {
   return issues;
 }
 
-// Naujas API handler formatas Next.js 13 "app" struktūroje
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const url = searchParams.get("url");

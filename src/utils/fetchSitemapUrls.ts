@@ -11,7 +11,7 @@ export async function fetchSitemapUrls(sitemapUrl: string): Promise<string[]> {
 
     console.log("Proxy Response Status:", response.status);
     console.log("Proxy Response Headers:", response.headers);
-    console.log("Proxy Response Data:", response.data);
+    // console.log("Proxy Response Data:", response.data);
 
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(response.data, "application/xml");

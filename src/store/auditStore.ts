@@ -1,12 +1,19 @@
 import { create } from "zustand";
 
+interface IssueResults {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  violations: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  incomplete: any[];
+  url: string;
+  score?: number;
+}
+
 interface AuditState {
   currentUrl: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  auditResults: Record<string, any[]>;
+  auditResults: Record<string, IssueResults>;
   setUrl: (url: string) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setAuditResults: (url: string, results: any[]) => void;
+  setAuditResults: (url: string, results: IssueResults) => void;
 }
 
 export const useAuditStore = create<AuditState>((set) => ({
