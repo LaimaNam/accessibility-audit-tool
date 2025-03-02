@@ -23,7 +23,9 @@ const HomePage = () => {
   if (!isMounted) return null;
 
   const calculateAccessibilityScore = (issues: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     violations: any[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     incomplete: any[];
   }): number => {
     let score = 100;
