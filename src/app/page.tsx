@@ -119,7 +119,7 @@ const HomePage = () => {
       </button>
       {error && <p>{error}</p>}
 
-      {scanComplete && (
+      {scanComplete && auditResults && (
         <div className="mt-4">
           <p className="text-green-500">Scan Complete!</p>
           <p className="text-lg font-bold mb-2">
