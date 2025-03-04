@@ -92,7 +92,7 @@ export const ViolationsTable: React.FC<ViolationTableProps> = ({
                 className="bg-gray-100 cursor-pointer"
                 onClick={() => handleRowClick(url)}
               >
-                <td className="border p-2" colSpan={5}>
+                <td className="border p-2" colSpan={6}>
                   <span className="font-bold">{url}</span> ({violations.length}{" "}
                   violations)
                 </td>
