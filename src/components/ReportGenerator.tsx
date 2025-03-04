@@ -62,7 +62,7 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ data }) => {
       </button>
       <button
         onClick={downloadCSV}
-        className="p-2 bg-green-500 text-white rounded"
+        className="p-2 bg-blue-950 text-white rounded"
       >
         Download CSV
       </button>

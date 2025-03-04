@@ -3,8 +3,30 @@
 import React, { useState, useEffect } from "react";
 import { fetchSitemapUrls } from "@/utils/fetchSitemapUrls";
 import { useAuditStore } from "@/store/auditStore";
-import { Overlay } from "@/components/Overlay";
 import { ReportGenerator } from "@/components/ReportGenerator";
+import { ViolationsTable } from "@/components/ViolationsTable";
+
+const calculateAccessibilityScore = (issues: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  violations: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  incomplete: any[];
+}): number => {
+  let score = 100;
+  const impactScores: Record<string, number> = {
+    critical: 5,
+    serious: 3,
+    moderate: 2,
+    minor: 1,
+  };
+
+  issues.violations.forEach((violation) => {
+    const impact = violation.impact || "minor";
+    score -= impactScores[impact] || 1;
+  });
+
+  return Math.max(0, score); // Ensure score doesn't go below 0
+};
 
 const HomePage = () => {
   const [sitemapUrl, setSitemapUrl] = useState("");
@@ -22,28 +44,6 @@ const HomePage = () => {
 
   if (!isMounted) return null;
 
-  const calculateAccessibilityScore = (issues: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    violations: any[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    incomplete: any[];
-  }): number => {
-    let score = 100;
-    const impactScores: Record<string, number> = {
-      critical: 5,
-      serious: 3,
-      moderate: 2,
-      minor: 1,
-    };
-
-    issues.violations.forEach((violation) => {
-      const impact = violation.impact || "minor";
-      score -= impactScores[impact] || 1;
-    });
-
-    return Math.max(0, score); // Ensure score doesn't go below 0
-  };
-
   const handleScan = async () => {
     setScanning(true);
     setScanComplete(false);
@@ -51,15 +51,11 @@ const HomePage = () => {
     const allScores: number[] = [];
 
     try {
-      console.log("Starting sitemap scan for URL:", sitemapUrl);
       const urls = await fetchSitemapUrls(sitemapUrl);
-      console.log("URLs to scan: ", urls);
-
-      // const urlsToScan = [urls[0]]; // Testing only the first URL
+      // const urlsToScan = [urls[0]];
 
       for (const url of urls) {
         setUrl(url);
-        console.log("Scanning URL:", url);
 
         try {
           const response = await fetch(
@@ -99,7 +95,7 @@ const HomePage = () => {
       setScanComplete(true);
     }
   };
-
+  console.log("auditResults", auditResults);
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Accessibility Audit Tool</h1>
@@ -137,24 +133,19 @@ const HomePage = () => {
               style={{ width: `${overallScore}%` }}
             />
           </div>
+          {currentUrl && scanning && <p>Scanning: {currentUrl}</p>}
           <ReportGenerator data={auditResults} />
-          <div className="mt-4">
-            <h2 className="text-xl font-bold">Page Scores</h2>
-            <ul className="list-disc ml-4">
-              {Object.entries(auditResults).map(([url, result]) => (
-                <li key={url}>
-                  <strong>{url}</strong>: Score - {result.score}/100
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ViolationsTable
+            violations={Object.values(auditResults).flatMap((result) =>
+              result.violations.map((violation) => ({
+                ...violation,
+                url: result.url,
+                score: result.score,
+              }))
+            )}
+          />
         </div>
       )}
-
-      <div className="mt-8">
-        {currentUrl && scanning && <p>Scanning: {currentUrl}</p>}
-        {scanComplete && <Overlay allResults={auditResults} />}
-      </div>
     </div>
   );
 };

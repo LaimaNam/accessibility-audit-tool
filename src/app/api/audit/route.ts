@@ -1,9 +1,9 @@
-// src/app/api/audit/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import puppeteer from "puppeteer";
+import fs from "fs"; // Importuojame fs modulį
 
-// Accessibility audit funkcija naudojant axe-core
-async function runAccessibilityAudit(url: string) {
+// Accessibility audit func using axe-core
+async function runAccessibilityAudit(url: string): Promise<unknown> {
   const browser = await puppeteer.launch({
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
@@ -11,13 +11,13 @@ async function runAccessibilityAudit(url: string) {
   const page = await browser.newPage();
   await page.goto(url, { waitUntil: "networkidle2" });
 
-  // Inject axe-core skriptą į puslapį
+  // Injecting axe-core script to the page
   await page.addScriptTag({
     url: "https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.3.5/axe.min.js",
   });
 
-  // Vykdome axe-core ir grąžiname accessibility problemas
-  const issues = await page.evaluate(async () => {
+  // running axe-core and returning accessibility problems
+  const issues = await page.evaluate(async (): Promise<unknown> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return await (window as any).axe.run();
   });
@@ -26,7 +26,7 @@ async function runAccessibilityAudit(url: string) {
   return issues;
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(request.url);
   const url = searchParams.get("url");
 
@@ -40,7 +40,10 @@ export async function GET(request: NextRequest) {
   try {
     console.log("Starting accessibility audit for URL:", url);
     const issues = await runAccessibilityAudit(url);
-    // console.log("Accessibility Issues:", issues);
+
+    console.log("issues", issues);
+    saveIssuesToFile(issues, `accessibility_issues_${Date.now()}.json`);
+
     return NextResponse.json({ issues });
   } catch (error) {
     console.error("Accessibility audit failed:", error);
@@ -50,3 +53,12 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+const saveIssuesToFile = (
+  issues: unknown,
+  filename: string = "accessibility_issues.json"
+) => {
+  const data = JSON.stringify(issues, null, 2);
+  fs.writeFileSync(filename, data);
+  console.log(`Issues saved to ${filename}`);
+};
