@@ -5,6 +5,7 @@ import { fetchSitemapUrls } from "@/utils/fetchSitemapUrls";
 import { useAuditStore } from "@/store/auditStore";
 import { ReportGenerator } from "@/components/ReportGenerator";
 import { ViolationsTable } from "@/components/ViolationsTable";
+import { saveIssuesToFile } from "@/utils/saveToFile";
 
 const calculateAccessibilityScore = (issues: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,7 +36,6 @@ const HomePage = () => {
   const [error, setError] = useState("");
   const { setUrl, setAuditResults, auditResults, currentUrl } = useAuditStore();
   const [overallScore, setOverallScore] = useState(100);
-
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -77,15 +77,18 @@ const HomePage = () => {
             url,
             score,
           });
-        } catch (e) {
-          console.warn("Accessibility audit failed for ", url, e);
+        } catch (error) {
+          console.warn("Accessibility audit failed for ", url, error);
         }
       }
+
       if (allScores.length > 0) {
         const averageScore =
           allScores.reduce((sum, score) => sum + score, 0) / allScores.length;
         setOverallScore(Math.round(averageScore));
       }
+
+      // saveIssuesToFile(auditResults, `accessibility_issues_${Date.now()}.json`);
     } catch (e) {
       console.error("Failed to fetch sitemap", e);
       // @ts-expect-error todo

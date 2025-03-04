@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import puppeteer from "puppeteer";
-import fs from "fs"; // Importuojame fs modulį
 
 // Accessibility audit func using axe-core
 async function runAccessibilityAudit(url: string): Promise<unknown> {
@@ -41,9 +40,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     console.log("Starting accessibility audit for URL:", url);
     const issues = await runAccessibilityAudit(url);
 
-    console.log("issues", issues);
-    saveIssuesToFile(issues, `accessibility_issues_${Date.now()}.json`);
-
     return NextResponse.json({ issues });
   } catch (error) {
     console.error("Accessibility audit failed:", error);
@@ -53,12 +49,3 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     );
   }
 }
-
-const saveIssuesToFile = (
-  issues: unknown,
-  filename: string = "accessibility_issues.json"
-) => {
-  const data = JSON.stringify(issues, null, 2);
-  fs.writeFileSync(filename, data);
-  console.log(`Issues saved to ${filename}`);
-};
