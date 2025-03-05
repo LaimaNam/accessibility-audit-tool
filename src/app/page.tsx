@@ -112,12 +112,12 @@ const HomePage = () => {
       <button
         onClick={handleScan}
         disabled={scanning}
-        className="p-2 bg-blue-500 text-white rounded"
+        className="p-2 mb-2 bg-blue-500 text-white rounded"
       >
         {scanning ? "Scanning..." : "Start Scan"}
       </button>
+      {currentUrl && scanning && <p>Scanning: {currentUrl}</p>}
       {error && <p>{error}</p>}
-
       {scanComplete && auditResults && (
         <div className="mt-4">
           <p className="text-green-500">Scan Complete!</p>
@@ -136,7 +136,6 @@ const HomePage = () => {
               style={{ width: `${overallScore}%` }}
             />
           </div>
-          {currentUrl && scanning && <p>Scanning: {currentUrl}</p>}
           <ReportGenerator data={auditResults} />
           <ViolationsTable
             violations={Object.values(auditResults).flatMap((result) =>

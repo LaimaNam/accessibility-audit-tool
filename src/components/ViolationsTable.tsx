@@ -137,7 +137,7 @@ export const ViolationsTable: React.FC<ViolationTableProps> = ({
                     </td>
                   </tr>
                 ))}
-            </>
+            </React.Fragment>
           ))}
         </tbody>
       </table>
