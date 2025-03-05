@@ -5,7 +5,7 @@ import { fetchSitemapUrls } from "@/utils/fetchSitemapUrls";
 import { useAuditStore } from "@/store/auditStore";
 import { ReportGenerator } from "@/components/ReportGenerator";
 import { ViolationsTable } from "@/components/ViolationsTable";
-import { saveIssuesToFile } from "@/utils/saveToFile";
+// import { saveIssuesToFile } from "@/utils/saveToFile";
 
 const calculateAccessibilityScore = (issues: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
