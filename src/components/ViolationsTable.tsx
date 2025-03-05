@@ -86,7 +86,7 @@ export const ViolationsTable: React.FC<ViolationTableProps> = ({
         </thead>
         <tbody>
           {Object.entries(violationsByUrl).map(([url, violations]) => (
-            <>
+            <React.Fragment key={url}>
               <tr
                 key={url}
                 className="bg-gray-100 cursor-pointer"
